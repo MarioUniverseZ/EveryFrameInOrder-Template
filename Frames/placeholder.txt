@@ -1,0 +1,9 @@
+example Frames directory structure:
+─Frames
+│  ├─A01E01
+│  │  ├─Frame001.jpg
+│  │  ├─...
+│  ├─A01E02
+│  │  ├─...
+│  ├─A01E03
+│  ├─...

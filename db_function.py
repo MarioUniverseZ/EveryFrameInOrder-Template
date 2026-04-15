@@ -5,48 +5,33 @@ def get_connection():
     return pymysql.connect(**DB_CONFIG)
 
 
-def get_next_frame():
+def get_next_frames(anime, limit=2):
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            sql = """
+            sql = f"""
                 SELECT *
-                FROM posted_frames
+                FROM {DB_CONFIG['database']}.{anime}
                 WHERE post_time IS NULL
                 ORDER BY id ASC
-                LIMIT 1
+                LIMIT {limit}
             """
-            cursor.execute(sql)
-            return cursor.fetchone()
+            cursor.execute(sql,)
+            return cursor.fetchall()
     finally:
-        conn.close()
+        pass
 
 
-def mark_posted(frame_id):
+def mark_posted(anime, frame_id):
     conn = get_connection()
     try:
         with conn.cursor() as cursor:
-            sql = """
-                UPDATE posted_frames
+            sql = f"""
+                UPDATE {DB_CONFIG['database']}.{anime}
                 SET post_time = NOW()
-                WHERE id = %s
+                WHERE id = {frame_id}
             """
-            cursor.execute(sql, (frame_id,))
+            cursor.execute(sql,)
         conn.commit()
-    finally:
-        conn.close()
-
-
-def get_total_frames_for_episode(episode):
-    conn = get_connection()
-    try:
-        with conn.cursor() as cursor:
-            sql = """
-                SELECT COUNT(*) as total
-                FROM posted_frames
-                WHERE episode = %s
-            """
-            cursor.execute(sql, (episode,))
-            return cursor.fetchone()["total"]
     finally:
         conn.close()

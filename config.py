@@ -21,8 +21,10 @@ PAGE_ID = os.getenv('PAGE_ID')
 
 POST_INTERVAL = 600  # seconds
 
+ANIME = os.getenv('TABLE')
+
 # Sentry
 sentry_sdk.init(
-    dsn="your_sentry_dsn",
+    dsn=os.getenv('SENTRY_DSN'),
     traces_sample_rate=0.0
 )

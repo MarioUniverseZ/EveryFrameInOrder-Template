@@ -4,3 +4,5 @@ www.youtube.com_cookies.txt
 anime_frame_*.sql
 .venv/
 Frames/*
+!Frames/placeholder.txt
+__pycache__
