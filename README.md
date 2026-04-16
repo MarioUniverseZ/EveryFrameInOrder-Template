@@ -5,7 +5,7 @@ This is the every-frame-in-order bot template that you can deploy anywhere, curr
 ### Tools
 - yt-dlp
 - ffmpeg
-- Python 3.12 (two environments, for jupyter and .py scripts respectively)
+- Python 3.12 (this environment uses 3.12.10)
 - DBMS (MySQL for this template)
 - ~15GB disk space (this is based on the number of frames)
 
@@ -20,21 +20,21 @@ This is the every-frame-in-order bot template that you can deploy anywhere, curr
 
     | video_id | youtube_title | index             | season_episode | title | done  |
     | -------- | ------------- | ----------------- | -------------- | ----- | ----- |
-    | %(id)    | %(title)      | %(playlist_index) | S01E01         | title | False |
+    | id       | youtube_title | playlist_index    | S01E01         | title | False |
     | ...      | ...           | ...               | S01E02         | ...   | ...   |
-4. Run jupyter_preprocess/e.ipynb (install packages for jupyter environments first!)
+4. Run [e.py](preprocess/e.py) (install packages for jupyter environments first!)
     - you probably need a different rule for extracting `anime` - `episode` : `title` from youtube_title if the current method doesn't fit
     - the example fps is 2 frames per second and having a jpg quality of 5, feel free to adjust
     - the frames will be stored in Frames directory
-5. Once `playlist.csv` is created, run jupyter_preprocess/writedb.ipynb (ignore the mysql coneection)
+5. Once `playlist.csv` is created, run [writedb.py](preprocess/writedb.py) (ignore the mysql connection)
     - the df1 df2 df3 code block is for rearranging episode order, you can ignore if not needed
 6. Create a database and a table from your DB choice. For the table (storing posting information), you can have the schema like this:
 
     ```sql
-    DROP TABLE IF EXISTS <database>.<anime_name>;
+    DROP TABLE IF EXISTS db.anime_name;
     /*!40101 SET @saved_cs_client     = @@character_set_client */;
     /*!50503 SET character_set_client = utf8mb4 */;
-    CREATE TABLE <database>.<anime_name> (
+    CREATE TABLE db.anime_name (
     `id` int NOT NULL AUTO_INCREMENT,
     `episode` varchar(10) NOT NULL,
     `title` varchar(200) NOT NULL,
@@ -73,14 +73,14 @@ This is the every-frame-in-order bot template that you can deploy anywhere, curr
 2. Get Sentry DSN from [the instruction](https://docs.sentry.io/concepts/key-terms/dsn-explainer/#where-to-find-your-data-source-name-dsn). The DSN is needed for the bot setup
 
 ### Bot Setup
-1. Copy and paste SQL connection information  facebook-related token, ids  and sentry dsn (`SENTRY_DSN`)into .env (`HOST`, `USER`,...), (`PAGE_ACCESS_TOKEN`, `PAGE_ID`, `APP_ID`), (`SENTRY_DSN`)
-2. Adjust post interval (in seconds) in config.py if needed, default is 600
+1. Copy and paste SQL connection information  facebook-related token, ids  and sentry dsn into .env (`HOST`, `USER`,...), (`PAGE_ACCESS_TOKEN`, `PAGE_ID`, `APP_ID`), (`SENTRY_DSN`)
+2. Adjust post interval (in seconds) in config.py if needed, the default is 600
 
 ## Run Bot
 ```bash
 python job_scheduler.py
 ```
-If error occurred or you want to stop the bot, hit Ctrl + C in the terminal.
+If error occurred or you want to stop the bot, hit Ctrl + C in the terminal
 <details>
     <summary>Example Output</summary>
 
@@ -94,6 +94,7 @@ If error occurred or you want to stop the bot, hit Ctrl + C in the terminal.
 ## Special Thanks
 - [ESFIO](https://www.facebook.com/EverySpongeInOrder)
 - [每一個BanG Dream Its Mygo幀](https://www.facebook.com/profile.php?id=61557479721069)
+- ChatGPT
 
 ## License
 [MIT](LICENSE)
