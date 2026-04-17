@@ -73,10 +73,10 @@ This is the every-frame-in-order bot template that you can deploy anywhere, curr
 2. Get Sentry DSN from [the instruction](https://docs.sentry.io/concepts/key-terms/dsn-explainer/#where-to-find-your-data-source-name-dsn). The DSN is needed for the bot setup
 
 ### Bot Setup
-1. Copy and paste SQL connection information  facebook-related token, ids  and sentry dsn into .env (`HOST`, `USER`,...), (`PAGE_ACCESS_TOKEN`, `PAGE_ID`, `APP_ID`), (`SENTRY_DSN`)
+1. Copy and paste SQL connection information  facebook-related token, id and sentry dsn into .env (`HOST`, `USER`,...), (`PAGE_ACCESS_TOKEN`, `PAGE_ID`, `APP_ID`), (`SENTRY_DSN`)<br>if you are deploying this on Ubuntu Linux, keep `HOST` empty
 2. Adjust post interval (in seconds) in config.py if needed, the default is 600
 
-## Run Bot
+## Run Bot on Windows
 ```bash
 python job_scheduler.py
 ```
@@ -90,6 +90,58 @@ If error occurred or you want to stop the bot, hit Ctrl + C in the terminal
     Posting Episode S01E01, File: Frames/S01E01/S01E01_2.jpg
     ...
 </details>
+
+## Run Bot on Ubuntu Linux
+### Set up MySQL server (outside of the container)
+1. install mysql server
+
+    ```bash
+    sudo apt update
+    sudo apt install mysql-server
+    ```
+2. set root password and secure installation
+
+    ```bash
+    sudo mysql_secure_installation
+    ```
+3. start service and login
+
+    ```bash
+    sudo systemctl start mysql
+    sudo mysql
+    ```
+4. import df.csv into the table
+
+    ```sql
+    LOAD DATA INFILE 'df.csv'
+    INTO TABLE db.table
+    FIELDS TERMINATED BY ',' 
+    ENCLOSED BY '"'
+    LINES TERMINATED BY '\n'
+    IGNORE 1 ROWS;
+    ```
+5. allow connection from container
+
+    ```sql
+    CREATE USER 'your_user'@'172.17.0.%' IDENTIFIED BY 'your_password';
+    GRANT ALL PRIVILEGES ON your_db.* TO 'your_user'@'172.17.0.%';
+    FLUSH PRIVILEGES;
+    ```
+6. exit mysql and run ```sudo ufw allow 3306/tcp``` to allow connection from outside, ```hostname -I``` to get your machine IP address and change `HOST` value with the address in .env file
+7. change `bind-address` to `0.0.0.0` in `/etc/mysql/mysql.conf.d/mysqld.cnf`
+
+### Set up Docker
+1. [install docker](https://docs.docker.com/engine/install/ubuntu/)
+2. build and wait for container to be built (check cd path)
+
+    ```bash
+    docker build -t anime-bot .
+    ```
+3. run container
+
+    ```bash
+    docker run -d --name anime-bot -v Frames:/app/Frames anime-bot
+    ```
 
 ## Special Thanks
 - [ESFIO](https://www.facebook.com/EverySpongeInOrder)

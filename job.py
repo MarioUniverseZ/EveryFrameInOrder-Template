@@ -19,7 +19,7 @@ def job():
         filename = frame["filename"].rstrip('\r')
 
         try:
-            caption = f"(BOT試營運)\n{title}\nFrame {frame_num} out of {total_frames}"
+            caption = f"{title}\nFrame {frame_num} out of {total_frames}"
 
             print(f"Posting Episode {episode}, File: {filename}")
 
