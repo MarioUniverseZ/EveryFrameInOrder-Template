@@ -62,7 +62,7 @@ This is the every-frame-in-order bot template that you can deploy anywhere, curr
 ### Get Meta Graph API Page Access Token
 1. Create an app in [Facebook Developer](https://developers.facebook.com/apps)
 2. Add use cases for facebook page, at least `pages_show_list`, `pages_read_engagement` and `pages_manage_posts` are required
-3. Go to [Meta Business Suite](https://business.facebook.com/). Click the cog icon in the bottom left and then click pages from account, link your facebook page and grant your self total control
+3. Go to [Meta Business Suite](https://business.facebook.com/). Click the cog icon in the bottom left and then click pages from account, link your facebook page and grant yourself total control
 4. Create a system user granting him full control for both app and page
 5. Generate a system user access token: choose the app linking to your page, token expiration never, grant necessary use cases and finally copy the token
 6. Go to [Graph API Test Tool](https://developers.facebook.com/tools/explorer/) then GET ... me/accounts, this shows up the pages that this system user has a role on. Locate `access_token` inside the curly brackets, check the name is the dedicated facebook page and then copy `access_token`
@@ -140,7 +140,12 @@ If error occurred or you want to stop the bot, hit Ctrl + C in the terminal
 3. run container
 
     ```bash
-    docker run -d --name anime-bot -v Frames:/app/Frames anime-bot
+    docker run -d --name anime-bot -v $PWD/Frames:/app/Frames anime-bot
+    ```
+4. (optional) check container logs
+
+    ```bash
+    docker logs --tail <number> anime-bot
     ```
 
 ## Special Thanks
