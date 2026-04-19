@@ -22,13 +22,24 @@ This is the every-frame-in-order bot template that you can deploy anywhere, curr
     | -------- | ------------- | ----------------- | -------------- | ----- | ----- |
     | id       | youtube_title | playlist_index    | S01E01         | title | False |
     | ...      | ...           | ...               | S01E02         | ...   | ...   |
-4. Run [e.py](preprocess/e.py) (install packages for jupyter environments first!)
+4. Create an environment for the .py scripts using the command:<br>(For Linux users, jump to [Deploy on Ubuntu Linux](#deploy-on-ubuntu-linux) section for step 4-5 and 8-9)
+
+    ```bash
+    python -m venv .venv
+    ```
+    If using VSCode, the venv will automatically activate for you
+5. Install packages for venv
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+6. Run [e.py](preprocess/e.py)
     - you probably need a different rule for extracting `anime` - `episode` : `title` from youtube_title if the current method doesn't fit
     - the example fps is 2 frames per second and having a jpg quality of 5, feel free to adjust
     - the frames will be stored in Frames directory
-5. Once `playlist.csv` is created, run [writedb.py](preprocess/writedb.py) (ignore the mysql connection)
+7. Once `playlist.csv` is created, run [writedb.py](preprocess/writedb.py)
     - the df1 df2 df3 code block is for rearranging episode order, you can ignore if not needed
-6. Create a database and a table from your DB choice. For the table (storing posting information), you can have the schema like this:
+8. Create a database and a table from your DB choice. For the table (storing posting information), you can have the schema like this:
 
     ```sql
     DROP TABLE IF EXISTS db.anime_name;
@@ -46,18 +57,7 @@ This is the every-frame-in-order bot template that you can deploy anywhere, curr
     UNIQUE KEY `uniq_episode_frame` (`filename`)
     ) ENGINE=InnoDB AUTO_INCREMENT=262141 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
     ```
-7. Import `df.csv` into the table
-8. Create another environment for the .py scripts using the command:
-
-    ```bash
-    python -m venv .venv
-    ```
-    If using VSCode, the venv will automatically activate for you
-9. Install packages for venv
-
-    ```bash
-    pip install -r requirements.txt
-    ```
+9. Import `df.csv` into the table
 
 ### Get Meta Graph API Page Access Token
 1. Create an app in [Facebook Developer](https://developers.facebook.com/apps)
@@ -80,37 +80,42 @@ This is the every-frame-in-order bot template that you can deploy anywhere, curr
 ```bash
 python job_scheduler.py
 ```
-If error occurred or you want to stop the bot, hit Ctrl + C in the terminal
-<details>
-    <summary>Example Output</summary>
 
-    Bot started...
-    Posting Episode S01E01, File: Frames/S01E01/S01E01_1.jpg
-    Success: 1: File: Frames/S01E01/S01E01_1.jpg
-    Posting Episode S01E01, File: Frames/S01E01/S01E01_2.jpg
-    ...
-</details>
+## Deploy on Ubuntu Linux
+MySQL server (or any other DBMS) should be installed directly on the machine
+1. install python3.12, pip3, venv and activate venv
 
-## Run Bot on Ubuntu Linux
-### Set up MySQL server (outside of the container)
-1. install mysql server
+    ```bash
+    sudo apt update
+    sudo add-apt-repository ppa:deadsnakes/ppa
+    sudo apt install python3.12 python3-pip python3-venv
+
+    python3 -m venv .venv
+    ```
+2. install packages for venv
+
+    ```bash
+    pip3 install -r requirements.txt
+    ```
+3. do step 6-7 at [Frame Preprocess and Environment Preparation](#frame-preprocess-and-environment-preparation) section
+4. install mysql server
 
     ```bash
     sudo apt update
     sudo apt install mysql-server
     ```
-2. set root password and secure installation
+5. set root password and secure installation
 
     ```bash
     sudo mysql_secure_installation
     ```
-3. start service and login
+6. start service and login
 
     ```bash
     sudo systemctl start mysql
     sudo mysql
     ```
-4. import df.csv into the table
+7. import df.csv into the table
 
     ```sql
     LOAD DATA INFILE 'df.csv'
@@ -120,15 +125,21 @@ If error occurred or you want to stop the bot, hit Ctrl + C in the terminal
     LINES TERMINATED BY '\n'
     IGNORE 1 ROWS;
     ```
-5. allow connection from container
+8. have your access tokens and sentry DSN from [Get Meta Graph API Page Access Token](#get-meta-graph-api-page-access-token) and [Get Sentry DSN](#get-sentry-dsn) sections and put them in .env file
+9. run ```python3 job_scheduler.py```
+
+## Deploy on Docker
+Make sure you have finished step 1-8 [above](#deploy-on-ubuntu-linux)
+
+1. allow connection from container
 
     ```sql
     CREATE USER 'your_user'@'172.17.0.%' IDENTIFIED BY 'your_password';
     GRANT ALL PRIVILEGES ON your_db.* TO 'your_user'@'172.17.0.%';
     FLUSH PRIVILEGES;
     ```
-6. exit mysql and run ```sudo ufw allow 3306/tcp``` to allow connection from outside, ```hostname -I``` to get your machine IP address and change `HOST` value with the address in .env file
-7. change `bind-address` to `0.0.0.0` in `/etc/mysql/mysql.conf.d/mysqld.cnf`
+2. exit mysql and run ```sudo ufw allow 3306/tcp``` to allow connection from outside, ```hostname -I``` to get your machine IP address and change `HOST` value with the address in .env file
+3. change `bind-address` to `0.0.0.0` in `/etc/mysql/mysql.conf.d/mysqld.cnf`
 
 ### Set up Docker
 1. [install docker](https://docs.docker.com/engine/install/ubuntu/)
@@ -145,8 +156,20 @@ If error occurred or you want to stop the bot, hit Ctrl + C in the terminal
 4. (optional) check container logs
 
     ```bash
-    docker logs --tail <number> anime-bot
+    docker logs --tail 20 anime-bot
     ```
+
+## Example stdout
+```
+Bot started...
+Posting Episode S01E01, File: Frames/S01E01/S01E01_1.jpg
+Success: 1: File: Frames/S01E01/S01E01_1.jpg
+Posting Episode S01E01, File: Frames/S01E01/S01E01_2.jpg
+...
+```
+
+## Notes
+- If error occurred or you want to stop the bot, hit Ctrl + C in the terminal
 
 ## Special Thanks
 - [ESFIO](https://www.facebook.com/EverySpongeInOrder)
