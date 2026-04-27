@@ -1,7 +1,7 @@
 import sentry_sdk
 from config import ANIME
 from db_function import get_next_frames, mark_posted
-from fb_post import post_to_facebook
+from fb_post import post_to_facebook, check_post_if_error
 
 def job():
     frames = get_next_frames(ANIME, 2)
@@ -32,8 +32,14 @@ def job():
         except Exception as e:
             print(f"ERROR at File: {filename}:", e)
 
+            if check_post_if_error(caption):
+                print("Recovered: Post actually succeeded despite error.")
+
+                mark_posted(ANIME, id)
+                print(f"Success: {id}: File: {filename}")
+                continue  # keep processing next frame
+
             sentry_sdk.capture_exception(e)
 
-            print("Scheduler paused due to error.")
-
-            return "ERROR" # 🚨 stop processing remaining frames
+            print("Scheduler paused due to real error.")
+            return "ERROR"

@@ -153,10 +153,15 @@ Make sure you have finished step 1-8 [above](#deploy-on-ubuntu-linux)
     ```bash
     docker run -d --name anime-bot -v $PWD/Frames:/app/Frames anime-bot
     ```
-4. (optional) check container logs
 
+#### Optional but helpful commands for Docker
+- check recent posts
     ```bash
     docker logs --tail 20 anime-bot
+    ```
+- check if posts get published with HTTP 500 (yes, meta graph API is really untrustable)
+    ```bash
+    docker logs anime-bot 2>&1 | grep -A 1 -B 1 Recovered
     ```
 
 ## Example stdout
